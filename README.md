@@ -1,4 +1,6 @@
 # Super Nova Group
+
+<img src = "supernova-logo-black-and-white.png">
 -----------------------------
 ## My Online Uni
 * Problem Domain:
@@ -6,7 +8,7 @@
 
 * Group Members:
     1. Ishaq Al-Athamneh
-    1. Reeam Al-Qurm
+    1. Reem Al-Qurm
     1. Naeem Musameh
     1. Malak Al-Momani
     1. Mus'ab Al-Omari
