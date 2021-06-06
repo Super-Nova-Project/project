@@ -8,8 +8,8 @@ const course = new mongoose.Schema({
   quiz: { type: Array, required: true },
   member: { type: Array, required: true },
   owner: { type: String, required: true },
-  description: { type: String, required: true }
-
+  description: { type: String, required: true },
+  grades: { type: Array, required: true }
 });
 
 

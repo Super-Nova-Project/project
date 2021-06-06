@@ -1,20 +1,23 @@
 'use strict';
 
-const users = require('../model/users-model')
+const base64 = require('base-64');
+const User = require('../model/users-model.js');
 
 module.exports = async (req, res, next) => {
 
+  if (!req.headers.authorization) { return res.status(401).send('not found user'); }
+  console.log('---basic handler ---', req.headers.authorization);
+  let basic = req.headers.authorization.split(' ').pop();
+  console.log('---basic ---', basic);
+  let [email, pass] = base64.decode(basic).split(':');
+  console.log('---email ---', email);
+  console.log('---pass ---', pass);
+
   try {
-
-    if (!req.headers.authorization) { next('Invalid Login') }
-    console.log('---bearer handler ---', req.headers.authorization);
-    const token = req.headers.authorization.split(' ').pop();
-    const validUser = await users.authenticateWithToken(token);
-
-    req.user = validUser;
-    req.token = validUser.token;
+    req.user = await User.authenticateBasic(email, pass)
     next();
   } catch (e) {
     res.status(403).send('Invalid Login');
   }
+
 }

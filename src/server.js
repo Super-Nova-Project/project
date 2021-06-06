@@ -5,8 +5,8 @@ const app = express();
 const cors = require('cors');
 const morgan = require('morgan');
 const User = require('./model/users-model');
-// const notFoundHandler = require('./middleware/404');
-// const errorHandler = require('./middleware/500');
+const notFoundHandler = require('./error/not-found');
+const errorHandler = require('./error/error-server');
 // const routs = require('./auth/router')
 const basicAuth = require('./middleware/basic')
 const bearerAuth = require('./middleware/bearer')
@@ -29,9 +29,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
 })
-app
-.set('Content-Type:', 'application/x-www-form-urlencoded')
-.post('/signup', async (req, res) => {
+app.post('/signup', async (req, res) => {
     console.log('Body--------->', req.body);
     let user = new User(req.body);
     const userRecord = await user.save();
@@ -44,6 +42,12 @@ app
 // app.get('/oauth/google', (req,res) => {
 //     res.send()
 // })
+
+app.get('/course/:courseID/grades', bearerAuth,(req, res) => {
+    let courseID = req.params.courseID;
+    console.log('------------hi------------',req.user);
+    res.send('bttattatatata')
+})
 
 app.post('/signin', basicAuth, (req, res, next) => {
     console.log('---signin---',req.body);
@@ -102,28 +106,14 @@ app.get('/auth/google/success', (req,res) => {
     console.log(' in /auth/google/success route--------------',req.body);
     res.send('success login')
 })
-app.post('/ishaq', (req, res) => {
-  let title = req.body.title;
-  let des = req.body.des;
-  console.log('the dis =', des);
-  console.log('the title =', title);
-  res.send('خراااا')
-})
-app.post('/asd', (req, res) => {
-  console.log(req.body);
-  res.send(req.body)
-})
-app.get('/ishaq',(req, res)=>{
-  res.sendFile(__dirname + '/posts.html')
-})
 function start(){
     const PORT = process.env.PORT;
     app.listen(PORT, () => {
         console.log(`I'm in port ${PORT}`)
     })
 }
-// app.use('*', notFoundHandler);
-// app.use(errorHandler);
+app.use('*', notFoundHandler);
+app.use(errorHandler);
 module.exports = {
     app,
     start
