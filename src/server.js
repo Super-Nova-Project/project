@@ -45,7 +45,7 @@ app.post('/signup', async (req, res) => {
 })
 
 app.get('/course/:courseID/grades', bearerAuth, courseData, isApproved, (req, res) => {
-    let courseID = req.params.courseID;
+   
     console.log('------------hi------------',req.user);
     res.send('bttattatatata')
 })
