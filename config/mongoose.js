@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 
 // connect to the database
-mongoose.connect('mongodb+srv://reem:admin@cluster0.7xkoi.mongodb.net/test');
+mongoose.connect('mongodb+srv://reem:admin@cluster0.7xkoi.mongodb.net/test', { useNewUrlParser: true ,  useUnifiedTopology: true });
 
 // aquire the connection (to check if it is successful)
 const db = mongoose.connection;
