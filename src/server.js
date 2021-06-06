@@ -11,6 +11,7 @@ const errorHandler = require('./error/error-server');
 const basicAuth = require('./middleware/basic')
 const bearerAuth = require('./middleware/bearer')
 const cookieSession = require('cookie-session')
+const courseRouter = require('./routes/course_routes.js');
 require('./middleware/passport')
 app.use(cors());
 app.use(morgan('dev'));
@@ -24,7 +25,7 @@ app.use(cookieSession({
   }))
 // Process FORM intput and put the data on req.body
 app.use(express.urlencoded({ extended: true }));
-// app.use(routs)
+app.use(courseRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
