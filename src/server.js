@@ -13,6 +13,9 @@ const bearerAuth = require('./middleware/bearer')
 const cookieSession = require('cookie-session')
 const courseRouter = require('./routes/course_routes.js');
 require('./middleware/passport')
+const courseData = require('./middleware/getCourseData');
+const isApproved = require('./middleware/permission');
+const mongooseCourse = require('./model/cours-model');
 app.use(cors());
 app.use(morgan('dev'));
 // Process JSON input and put the data on req.body
@@ -40,14 +43,43 @@ app.post('/signup', async (req, res) => {
     };
     res.status(201).json(output);
 })
-// app.get('/oauth/google', (req,res) => {
-//     res.send()
-// })
 
-app.get('/course/:courseID/grades', bearerAuth,(req, res) => {
+app.get('/course/:courseID/grades', bearerAuth, courseData, isApproved, (req, res) => {
     let courseID = req.params.courseID;
     console.log('------------hi------------',req.user);
     res.send('bttattatatata')
+})
+app.post('/create-course',bearerAuth, async (req,res) => {
+    req.body.owner = req.user.email
+    req.body.members = [];
+    req.body.members.push(req.user.email)
+    let course = new mongooseCourse(req.body);
+    const newCourse = await course.save();
+    res.status(201).json(newCourse);
+})
+app.post('/join-course',bearerAuth, async (req, res, next) => {
+    let id = req.body.id;
+    const email = req.user.email;
+    const myCourse = await mongooseCourse.findById(id);
+    if(myCourse.members.includes(email)) next('you are already enrolled')
+    if(myCourse){
+        let obj = {
+            email : email,
+            midExam : 0,
+            firstExam: 0,
+            secondExam : 0,
+            quizOne : 0,
+            quizTwo : 0,
+            quizThree : 0,
+            finalExam : 0,
+            overAll : 0
+        }
+        myCourse.members.push(email);
+        myCourse.grades.push(obj);
+        res.status(201).json(myCourse);
+    }else{
+        next('course not found')
+    }
 })
 
 app.post('/signin', basicAuth, (req, res, next) => {
