@@ -8,6 +8,8 @@ const permission = require('../middleware/permission.js');
 const mongooseCourse = require('../model/cours-model.js');
 const mongooseAssignment = require('../model/assignment-model.js')
 const mongooseQuiz = require('../model/quiz-model.js');
+const User = require('../model/users-model');
+
 
 courseRouter.post('/course/:courseID/create-assignment' ,bearerAuth, getCourseData, permission , async (req,res)=>{
   const thisCourse = req.course;
@@ -67,6 +69,8 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   req.body.members = [];
   req.body.members.push(req.user.email)
   let course = new mongooseCourse(req.body);
+  User.userCourses.push(id);
+  await User.save();
   const newCourse = await course.save();
   res.status(201).json(newCourse);
 })
@@ -89,6 +93,8 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
       }
       myCourse.members.push(email);
       myCourse.grades.push(obj);
+      User.userCourses.push(id);
+      await User.save();
       await myCourse.save()
       res.status(201).json(myCourse);
   } else {
