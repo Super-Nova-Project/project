@@ -37,13 +37,16 @@ passport.use(new GoogleStrategy({
       password
     }
     
-    // const googleUser = await User.findOne({ email });
-    // if (googleUser) {
+    const googleUser = await User.findOne({ email });
+    if (!googleUser) {
+      const newUser = new User(obj);
+      const myUser = await newUser.save();
+      console.log(myUser);
+      return done(null, myUser);
+    }
+console.log(googleUser);
 
-    // }
-
-
-    return done(null, obj);
+    return done(null, googleUser);
 
   }
 ));

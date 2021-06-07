@@ -8,7 +8,12 @@ const permission = require('../middleware/permission.js');
 const mongooseCourse = require('../model/cours-model.js');
 const mongooseAssignment = require('../model/assignment-model.js')
 const mongooseQuiz = require('../model/quiz-model.js');
+
 const faker = require('faker');
+
+const User = require('../model/users-model');
+
+
 
 courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseData, permission, async (req, res) => {
   const thisCourse = req.course;
@@ -72,6 +77,8 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   req.body.members = [];
   req.body.members.push(req.user.email)
   let course = new mongooseCourse(req.body);
+  User.userCourses.push(id);
+  await User.save();
   const newCourse = await course.save();
   res.status(201).json(newCourse);
 });
@@ -84,21 +91,24 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
   const myCourse = await mongooseCourse.findById(id);
   if (myCourse.members.includes(email)) next('you are already enrolled')
   if (myCourse) {
-    let obj = {
-      email: email,
-      midExam: 0,
-      firstExam: 0,
-      secondExam: 0,
-      quizOne: 0,
-      quizTwo: 0,
-      quizThree: 0,
-      finalExam: 0,
-      overAll: 0
-    }
-    myCourse.members.push(email);
-    myCourse.grades.push(obj);
-    await myCourse.save()
-    res.status(201).json(myCourse);
+      let obj = {
+          email: email,
+          midExam: 0,
+          firstExam: 0,
+          secondExam: 0,
+          quizOne: 0,
+          quizTwo: 0,
+          quizThree: 0,
+          finalExam: 0,
+          overAll: 0
+      }
+      myCourse.members.push(email);
+      myCourse.grades.push(obj);
+      User.userCourses.push(id);
+      await User.save();
+      await myCourse.save()
+      res.status(201).json(myCourse);
+
   } else {
     next('course not found')
   }
