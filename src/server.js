@@ -11,6 +11,7 @@ const errorHandler = require('./error/error-server');
 const basicAuth = require('./middleware/basic')
 const bearerAuth = require('./middleware/bearer')
 const cookieSession = require('cookie-session')
+const courseRouter = require('./routes/course_routes.js');
 require('./middleware/passport')
 const courseData = require('./middleware/getCourseData');
 const isApproved = require('./middleware/permission');
@@ -27,7 +28,7 @@ app.use(cookieSession({
 }))
 // Process FORM intput and put the data on req.body
 app.use(express.urlencoded({ extended: true }));
-// app.use(routs)
+app.use(courseRouter);
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
@@ -44,9 +45,11 @@ app.post('/signup', async (req, res) => {
 })
 
 app.get('/course/:courseID/grades', bearerAuth, courseData, isApproved, (req, res) => {
+
     // let courseID = req.params.courseID;
     console.log('------------hi------------', req.course);
     res.status(200).json(req.course.grades)
+
 })
 app.post('/course/:courseID/grades', (req, res) => {
     try {
