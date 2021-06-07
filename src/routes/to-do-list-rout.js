@@ -23,8 +23,8 @@ taskRouter.get('/task', bearerAuth , async (req, res)=>{
       const taskfromschema =  await mongooseCourse.findById(id);
       if (taskfromschema.owner != req.user.email) {
         
-        let assignment = taskfromschema.assignments.filter(x => !x.students.includes(req.User.email));
-        let quize = taskfromschema.quizes.filter(x => !x.students.includes(req.User.email));
+        let assignment = taskfromschema.assignments.filter(x => !x.students.includes(req.user.email));
+        let quize = taskfromschema.quizes.filter(x => !x.students.includes(req.user.email));
         todotask.push(...assignment);
         todotask.push(...quize);
       }

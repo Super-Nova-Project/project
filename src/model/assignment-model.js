@@ -8,7 +8,7 @@ const assignment = new mongoose.Schema({
   due_date:{type: Date ,required: true},
   assignmentFile:{type: Buffer},
   solutionInfo:{type: Array}, // {student: email , solution: solutionText}
-  students: { type: Array, required: true }
+  students: { type: Array }
 });
 
 
