@@ -2,6 +2,8 @@
 const passport = require('passport')
 const express = require('express');
 const app = express();
+const base64 = require('base-64')
+const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const morgan = require('morgan');
 const User = require('./model/users-model');
@@ -77,19 +79,34 @@ app.get('/auth/google',
     }
     ));
 
-app.get('/auth/google/callback',
-    passport.authenticate('google', {
-        successRedirect: '/auth/google/success',
-        failureRedirect: '/auth/google/failure'
-    }));
+app.get('/auth/google/callback', passport.authenticate('google', {
+    successRedirect: '/auth/google/success',
+    failureRedirect: '/auth/google/failure'
+}));
 
 
 app.get('/auth/google/failure', (req, res) => {
     res.send('failed login')
 })
-app.get('/auth/google/success', (req, res) => {
-    console.log(' in /auth/google/success route--------------', req);
-    res.send('success login')
+app.get('/auth/google/success', async (req, res) => {
+    try {
+        console.log(req.session.passport);
+
+    let token = base64.encode(`${req.session.passport.user.email}:${req.session.passport.user.password}`)
+    let tokenObject = {
+        email: req.session.passport.user.email,
+        exp: Math.floor(Date.now() / 1000) + (60 * 60)
+      }
+      let a = jwt.sign(tokenObject, process.env.SECRET)
+      const validUser = await User.authenticateWithToken(a);
+      let myObj = {
+        user : validUser,
+        token : validUser.token
+      }
+      res.status(200).send(myObj)
+    } catch (err) {
+        console.log(err);
+    }
 })
 function start() {
     const PORT = process.env.PORT;
