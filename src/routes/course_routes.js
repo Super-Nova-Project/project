@@ -9,8 +9,6 @@ const mongooseCourse = require('../model/cours-model.js');
 const mongooseAssignment = require('../model/assignment-model.js')
 const mongooseQuiz = require('../model/quiz-model.js');
 
-const faker = require('faker');
-
 const User = require('../model/users-model');
 const { json } = require('express');
 
@@ -35,11 +33,6 @@ courseRouter.post('/course/:courseID/create-quiz', bearerAuth, getCourseData, pe
 });
 
 
-courseRouter.get('/course/all-courses', bearerAuth, async (req, res) => {
-  const allCourses = await mongooseCourse.find({});
-  res.send(allCourses);
-});
-
 
 courseRouter.get('/course/:courseID/grades', bearerAuth, getCourseData, permission, (req, res) => {
 
@@ -50,11 +43,11 @@ courseRouter.get('/course/:courseID/grades', bearerAuth, getCourseData, permissi
 
 });
 
-courseRouter.get('/course/:courseID', bearerAuth,getCourseData, async (req, res)=> {
+courseRouter.get('/course/:courseID', bearerAuth, getCourseData, async (req, res) => {
   let a = await mongooseCourse.findById(req.params.courseID)
   res.status(200).json(a)
 })
-courseRouter.post('/course/:courseID/grades',bearerAuth,getCourseData, permission, async (req, res) => {
+courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permission, async (req, res) => {
 
   try {
     const id = req.params.courseID;
@@ -85,8 +78,8 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   let course = new mongooseCourse(req.body);
   const newCourse = await course.save();
   let id = course._id
-  let a = await User.findOne({email})
-  console.log('-------------------------',id);
+  let a = await User.findOne({ email })
+  console.log('-------------------------', id);
   let b = a.userCourses.push(id.toString());
   await a.save()
   res.status(201).json(newCourse);
@@ -106,26 +99,26 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
   const myCourse = await mongooseCourse.findById(id);
   if (myCourse.members.includes(email)) next('you are already enrolled')
   if (myCourse) {
-      let obj = {
-          email: email,
-          midExam: 0,
-          firstExam: 0,
-          secondExam: 0,
-          quizOne: 0,
-          quizTwo: 0,
-          quizThree: 0,
-          finalExam: 0,
-          overAll: 0
-      }
-      myCourse.members.push(email);
-      myCourse.grades.push(obj);
+    let obj = {
+      email: email,
+      midExam: 0,
+      firstExam: 0,
+      secondExam: 0,
+      quizOne: 0,
+      quizTwo: 0,
+      quizThree: 0,
+      finalExam: 0,
+      overAll: 0
+    }
+    myCourse.members.push(email);
+    myCourse.grades.push(obj);
 
-      let a = await User.findOne({email})
-      let b = a.userCourses.push(id);
-      await a.save()
-      // await User.save();
-      await myCourse.save()
-      res.status(201).json(myCourse);
+    let a = await User.findOne({ email })
+    let b = a.userCourses.push(id);
+    await a.save()
+    // await User.save();
+    await myCourse.save()
+    res.status(201).json(myCourse);
 
   } else {
     next('course not found')
@@ -136,36 +129,37 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const thisUser = req.user;
   const thisCourse = req.course;
   const assignmentSolution = req.body;
-  
+
   const assID = req.params.assignmentID;
 
   const solutionInfo = {
-    student: thisUser.email , 
+    student: thisUser.email,
     solution: assignmentSolution
   }
 
   const index = thisCourse.assignments.findIndex(x => x._id == assID);
   thisCourse.assignments[index].solutionInfo.push(solutionInfo);
+  thisCourse.assignments[index].students.push(solutionInfo.student);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
 
-courseRouter.post('/course/:courseID/:quizID/submit-quiz' , bearerAuth , getCourseData , async (req,res) =>{
+courseRouter.post('/course/:courseID/:quizID/submit-quiz', bearerAuth, getCourseData, async (req, res) => {
   const thisUser = req.user;
   const thisCourse = req.course;
   const quizSolution = req.body;
-  
+
   const quizID = req.params.quizID;
 
   const solutionInfo = {
-    student: thisUser.email , 
-    solution: quizSolution,
-    time: faker.random.number
+    student: thisUser.email,
+    solution: quizSolution.solution
   }
 
   const index = thisCourse.quizes.findIndex(x => x._id == quizID);
   console.log(thisCourse.quizes[index]);
   thisCourse.quizes[index].solutionInfo.push(solutionInfo);
+  thisCourse.quizes[index].students.push(solutionInfo.student);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.quizes);
 });
