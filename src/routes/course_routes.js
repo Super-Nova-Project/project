@@ -12,7 +12,7 @@ const mongooseQuiz = require('../model/quiz-model.js');
 const faker = require('faker');
 
 const User = require('../model/users-model');
-
+const { json } = require('express');
 
 
 courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseData, permission, async (req, res) => {
@@ -47,10 +47,15 @@ courseRouter.get('/course/:courseID/grades', bearerAuth, getCourseData, permissi
   console.log('------------hi------------', req.course);
   res.status(200).json(req.course.grades)
 
+
 });
 
+courseRouter.get('/course/:courseID', bearerAuth,getCourseData, async (req, res)=> {
+  let a = await mongooseCourse.findById(req.params.courseID)
+  res.status(200).json(a)
+})
+courseRouter.post('/course/:courseID/grades',bearerAuth,getCourseData, permission, async (req, res) => {
 
-courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permission, async (req, res) => {
   try {
     const id = req.params.courseID;
     const email = req.user.email;
@@ -75,15 +80,25 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
 courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   req.body.owner = req.user.email
   req.body.members = [];
-  req.body.members.push(req.user.email)
+  const email = req.user.email;
+  req.body.members.push(email)
   let course = new mongooseCourse(req.body);
-  User.userCourses.push(id);
-  await User.save();
   const newCourse = await course.save();
+  let id = course._id
+  let a = await User.findOne({email})
+  console.log('-------------------------',id);
+  let b = a.userCourses.push(id.toString());
+  await a.save()
   res.status(201).json(newCourse);
+
 });
 
 
+
+
+courseRouter.get('/my-courses', bearerAuth, async (req, res, next) => {
+  res.status(200).json(req.user.userCourses)
+})
 
 courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
   let id = req.body.id;
@@ -104,8 +119,11 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
       }
       myCourse.members.push(email);
       myCourse.grades.push(obj);
-      User.userCourses.push(id);
-      await User.save();
+
+      let a = await User.findOne({email})
+      let b = a.userCourses.push(id);
+      await a.save()
+      // await User.save();
       await myCourse.save()
       res.status(201).json(myCourse);
 
