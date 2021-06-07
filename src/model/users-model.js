@@ -9,8 +9,8 @@ const users = new mongoose.Schema({
   password: { type: String, required: true },
   firstName: { type: String, required: true },
   lastName: { type: String, required: true },
-  gender: { type: String, required: true },
-  birthDate: { type: Date, required: true }
+  gender: { type: String, required: true, default : 'Not Specify' },
+  birthDate: { type: Date, required: true, default: '2000-01-01' }
 });
 
 // Adds a virtual field to the schema. We can see it, but it never persists
