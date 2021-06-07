@@ -7,7 +7,11 @@ const assignment = new mongoose.Schema({
   assignmentText:{type: String, required: true},
   due_date:{type: Date ,required: true},
   assignmentFile:{type: Buffer},
+
+  solutionInfo:{type: Array}, // {student: email , solution: solutionText}
+
   students: { type: Array, required: true }
+
 
 });
 
