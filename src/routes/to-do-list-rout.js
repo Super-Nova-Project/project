@@ -4,6 +4,7 @@ const mongoosetask = require('../model/task');
 const mongooseAssignment = require('../model/assignment-model.js')
 const User = require('../model/users-model');
 const mongooseCourse = require('../model/cours-model.js');
+const bearerAuth = require('../middleware/bearer')
 
 const taskRouter = express.Router();
 
@@ -13,14 +14,21 @@ taskRouter.get('/task', bearerAuth , async (req, res)=>{
 
     const id = 0;
     todotask = [];
-    User.userCourses.forEach(usercourse =>{
-       id = usercourse;
+    const theUser = await User.findById(req.user._id);
+    console.log('theUser----------------',theUser);
+    myarr = theUser.userCourses;
+    console.log('myarr----------------',myarr);
+    for (let id of myarr){
+       console.log('id------------', id);
       const taskfromschema =  await mongooseCourse.findById(id);
-      const assignment = taskfromschema.assignments.filter(x => !x.students.includes(req.User.email));
-      const quize = taskfromschema.quizes.filter(x => !x.students.includes(req.User.email));
-      todotask.push(...assignment);
-      todotask.push(...quize);
-    });    
+      if (taskfromschema.owner != req.user.email) {
+        
+        let assignment = taskfromschema.assignments.filter(x => !x.students.includes(req.User.email));
+        let quize = taskfromschema.quizes.filter(x => !x.students.includes(req.User.email));
+        todotask.push(...assignment);
+        todotask.push(...quize);
+      }
+    }    
     res.send(todotask);
 });
 

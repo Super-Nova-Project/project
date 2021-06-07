@@ -15,6 +15,7 @@ const basicAuth = require('./middleware/basic')
 const bearerAuth = require('./middleware/bearer')
 const cookieSession = require('cookie-session')
 const courseRouter = require('./routes/course_routes.js');
+const taskRoute = require('./routes/to-do-list-rout')
 require('./middleware/passport')
 // const courseData = require('./middleware/getCourseData');
 // const isApproved = require('./middleware/permission');
@@ -32,6 +33,7 @@ app.use(cookieSession({
 // Process FORM intput and put the data on req.body
 app.use(express.urlencoded({ extended: true }));
 app.use(courseRouter);
+app.use(taskRoute)
 
 app.get('/', (req, res) => {
     res.sendFile(__dirname + '/index.html')
