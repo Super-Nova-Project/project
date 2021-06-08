@@ -21,7 +21,8 @@ Database Diagram:
 [database](database.png)
 
 **Routes**:
-Authentication Routes:
+
+> Authentication Routes:
 
 | Method      | Endpoint | Description     |
 | :---        |    :----:   |  :----:       |
@@ -33,8 +34,10 @@ Authentication Routes:
 | GET      | /auth/google/failure      | return failed login   |
 | GET      | /auth/google/success      | authorize the user to log in using google   |
 
-Courses Routes:
+> Courses Routes:
 
+| Method      | Endpoint | Description     |
+| :---        |    :----:   |  :----:       |
 | POST      | /create-course       | create new course  |
 | GET      | /my-courses       | return all user's courses   |
 | POST      | /join-course       | allow user to join course using key   |
@@ -45,8 +48,10 @@ Courses Routes:
 | POST      | /course/:courseID/:assignmentID/submit-assignment       | allow the members to sumbit the assignments   |
 | POST      | /course/:courseID/:quizID/submit-quiz      | allow the members to sumbit the quizzes   |
 
-to-do Routes:
+> to-do Routes:
 
+| Method      | Endpoint | Description     |
+| :---        |    :----:   |  :----:       |
 | GET      | /task       | show incoming tasks for the member   |
 
 * Trello Board :
