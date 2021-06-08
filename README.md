@@ -1,7 +1,8 @@
 # Super Nova Group
 
-<img src = "supernova-logo-black-and-white.png">
+<img src = "assets/supernova-logo-black-and-white.png">
 -----------------------------
+
 ## My Online Uni
 
 * Problem Domain:
@@ -16,3 +17,9 @@
 
 * Trelllo Board :
 [Click Here](https://trello.com/b/gDHcanLR)
+
+
+* UML Diagram :
+
+<img src = "assets/projectUML.png">
+
