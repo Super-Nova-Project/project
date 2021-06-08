@@ -5,8 +5,9 @@ const users = require('../model/users-model')
 module.exports = async (req, res, next) => {
 
   try {
-    console.log(req.headers);
-    if (!req.headers.authorization) { next('Bearer : Invalid Login') }
+    // console.log(req.headers);
+    if (!req.headers.authorization) { next({statusMessage : 'Bearer : Invalid Login',
+    status : 500}) }
 
     const token = req.headers.authorization.split(' ').pop();
     const validUser = await users.authenticateWithToken(token);
@@ -15,6 +16,7 @@ module.exports = async (req, res, next) => {
     req.token = validUser.token;
     next();
   } catch (e) {
-    res.status(403).send('Bearer : Invalid Login');
+    next({statusMessage : 'Bearer : Invalid Login',
+    status : 500});
   }
 }
