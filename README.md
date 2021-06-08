@@ -20,7 +20,7 @@
 
 Database Diagram:
 
-![database](database.png)
+![database](./assets/database.png)
 
 **Routes**:
 
