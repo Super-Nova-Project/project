@@ -9,19 +9,8 @@ describe('CRUD Operation', ()=> {
     let token;
     let user;
     let id;
-    // beforeEach(()=> {
-    //     // mockServer.set('authorization' , `Bearer ${a}`)
-    //     mockServer.post('/signup').send({
-    //         email : 'aaa',
-    //         password : 'bbb',
-    //         firstName : 'ccc',
-    //         lastName : 'ddd'
-    //     }).then( x => {
-    //         console.log('signup ----------', x);
-    //         token = x
-    //         console.log('token ----------', token);
-    //     })
-    // })
+    let asID ;
+    let quId;
 
     let data = {
         name : "testCourse",
@@ -35,10 +24,8 @@ describe('CRUD Operation', ()=> {
             firstName : 'ccc',
             lastName : 'ddd'
         })
-            console.log('signup ----------', b.body);
             token = b.body.token;
             user = b.body.user;
-            // console.log('token ----------', b.body.token);
             expect(b.body.user.gender).toEqual('Not Specify');
             expect(b.body.user.email).toEqual('aaa');
             expect(b.body.user.firstName).toEqual('ccc');
@@ -47,18 +34,15 @@ describe('CRUD Operation', ()=> {
     });
 
     it('should sign in with basic authentication' , async ()=>{
-        console.log('user: *****', user);
         const basic = `hamneh@gmail.co:111111`; 
         const encoded = base64.encode(basic);
         const userSignin = await mockServer.post('/signin').set(
             'authorization','Basic ' + encoded );
-        console.log('user : *********' , userSignin);
         expect(userSignin.body).toEqual({});
     });
     it('Should Create A New Course', async () => {
-        // console.log('--------------token-------------', token);
         const response = await mockServer.post('/create-course').set('authorization' , `Bearer ${token}`).send(data);
-        // console.log('-----------------response-----------------',response);
+        
         id = response.body._id;
         expect(response.body.name).toEqual(data.name);
         expect(response.body.description).toEqual(data.description);
@@ -66,10 +50,65 @@ describe('CRUD Operation', ()=> {
         expect(response.body.members).toEqual(['aaa']);
     })
     it('Should See My Courses', async () => {
-        console.log('--------------id-------------', id);
         const response = await mockServer.get('/my-courses').set('authorization' , `Bearer ${token}`);
-        // console.log('-----------------response-----------------',response);
+        
         expect(response.body).toEqual([`${id}`]);
+    })
+    it('Not Found Handler', async () => {
+        const response = await mockServer.get('/no-route');
+        // console.log('-----------------response-----------------',response);
+        expect(response.body.error).toEqual('Resource Not Found');
+    })
+    it('I Should See My Course\'s Info', async () => {
+        const response = await mockServer.get(`/course/${id}`).set('authorization' , `Bearer ${token}`);
+        
+        expect(response.body._id).toEqual(`${id}`);
+        expect(response.body.owner).toEqual(`aaa`);
+    })
+    it('Should See My Tasks', async () => {
+        const response = await mockServer.get('/task').set('authorization' , `Bearer ${token}`);
+        
+        expect(response.body).toEqual([]);
+    })
+    it('I Can Create An Assignment', async () => {
+        const response = await mockServer.post(`/course/${id}/create-assignment`).set('authorization' , `Bearer ${token}`).send({
+            due_date : '2021-08-08',
+            assignmentText :'test create assignment',
+            assignmentTitle : 'test1'
+        });
+        // console.log(response.body);
+        asID = response.body[0]._id;
+        expect(response.body[0].assignmentTitle).toEqual(`test1`);
+        expect(response.body[0].assignmentText).toEqual(`test create assignment`);
+    })
+    it('I Can Create A Quiz', async () => {
+        const response = await mockServer.post(`/course/${id}/create-quiz`).set('authorization' , `Bearer ${token}`).send({
+            timer : '2021-08-08',
+            quizText :'test create quiz',
+            quizTitle : 'test2'
+        });
+        quId = response.body[0]._id;
+        // console.log(response.body);
+        expect(response.body[0].quizTitle).toEqual(`test2`);
+        expect(response.body[0].quizText).toEqual(`test create quiz`);
+    })
+
+    it('I Can See The Grades', async () => {
+        const response = await mockServer.get(`/course/${id}/grades`).set('authorization' , `Bearer ${token}`);
+        // console.log(response.body);
+        expect(response.body).toEqual([]);
+    })
+
+    it('I Can Delete an assignment', async () => {
+        const response = await mockServer.delete(`/course/${id}/delete-as/${asID}`).set('authorization' , `Bearer ${token}`);
+        console.log('--------',response.body);
+        expect(response.body).toEqual([]);
+    })
+
+    it('Internal Server Error', async () => {
+        const response = await mockServer.delete(`/course/${id}/delete-as/${asID}`);
+        console.log('--------',response.body);
+        expect(response.body.error.statusMessage).toEqual('Bearer : Invalid Login');
     })
     // it('Should join New Course', async () => {
     //     console.log('--------------token-------------', token);

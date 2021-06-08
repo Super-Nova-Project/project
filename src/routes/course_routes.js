@@ -17,8 +17,9 @@ courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseDa
   const thisCourse = req.course;
   const assignmet = new mongooseAssignment(req.body);
   thisCourse.assignments.push(assignmet);
+  console.log('thisCourse.assignments---------------', thisCourse.assignments);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
-
+  await myCourse.save()
   res.send(myCourse.assignments);
 });
 
@@ -37,7 +38,7 @@ courseRouter.post('/course/:courseID/create-quiz', bearerAuth, getCourseData, pe
 courseRouter.get('/course/:courseID/grades', bearerAuth, getCourseData, permission, (req, res) => {
 
   // let courseID = req.params.courseID;
-  console.log('------------hi------------', req.course);
+  // console.log('------------hi------------', req.course);
   res.status(200).json(req.course.grades)
 
 
@@ -159,11 +160,13 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
-courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
+courseRouter.delete('/course/:courseID/delete-as/:assignmentID',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
+  console.log('--------theCourse--------',theCourse);
   const asID = req.params.assignmentID;
   const myAssign = theCourse.assignments;
+  console.log('--------myAssign--------',myAssign);
   // const index = myAssign.indexOf(asID)
     for (let index = 0; index < myAssign.length; index++) {
       const element = myAssign[index];
@@ -171,13 +174,13 @@ courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCour
         myAssign.splice(index, 1);
       }
     }
-      
+    console.log('--------myAssign after--------',myAssign);
     
     await theCourse.save();
-    return myAssign;
+    res.send(myAssign);
 
 })
-courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
+courseRouter.delete('/course/:courseID/:quizID/delete-qu',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const quID = req.params.quizID;
@@ -190,7 +193,7 @@ courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData
     }
   }
     await theCourse.save();
-    return myQuizez;
+    res.send(myQuizez);
 })
 
 courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData, permission, async (req, res) => {
@@ -233,18 +236,18 @@ courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, 
     return theCourse;
 })
 
-courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
-  const id  = req.params.courseID;
-  const theCourse = await mongooseCourse.findById(id)
-  const quID = req.params.quizID;
-  const myQuizez = theCourse.quizes;
-  const index = myQuizez.indexOf(quID)
-    if (index > -1) {
-      myQuizez.splice(index, 1);
-    }
-    await theCourse.save();
-    return myQuizez;
-})
+// courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
+//   const id  = req.params.courseID;
+//   const theCourse = await mongooseCourse.findById(id)
+//   const quID = req.params.quizID;
+//   const myQuizez = theCourse.quizes;
+//   const index = myQuizez.indexOf(quID)
+//     if (index > -1) {
+//       myQuizez.splice(index, 1);
+//     }
+//     await theCourse.save();
+//     return myQuizez;
+// })
 
 courseRouter.post('/course/:courseID/:quizID/submit-quiz', bearerAuth, getCourseData, async (req, res) => {
   const thisUser = req.user;

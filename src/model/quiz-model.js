@@ -8,7 +8,7 @@ const quiz = new mongoose.Schema({
   timer:{type: Number ,required: true},
   quizFile:{type: Buffer},
   solutionInfo:{type:Array}, //[{student:email , answers:{} , time:11}]
-  students: { type: Array, required: true }
+  students: { type: Array }
 });
 
 
