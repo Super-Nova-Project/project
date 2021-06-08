@@ -1,6 +1,5 @@
 # Super Nova Group
 
-
 <img src = "assets/supernova-logo-black-and-white.png">
 
 -----------------------------
@@ -16,7 +15,6 @@
     1. Naeem Musameh
     1. Malak Al-Momani
     1. Mus'ab Al-Omari
-
 
 Database Diagram:
 
@@ -56,13 +54,9 @@ Database Diagram:
 | :---        |    :----:   |  :----:       |
 | GET      | /task       | show incoming tasks for the member   |
 
-
 * Trelllo Board :
 [Click Here](https://trello.com/b/gDHcanLR)
-
 
 * UML Diagram :
 
 <img src = "assets/projectUML.png">
-
-
