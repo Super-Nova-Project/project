@@ -69,6 +69,22 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
   }
 });
 
+courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permission, (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  const theUsers = theCourse.members;
+  for (let courseUser of theUsers) {
+    const theUser = await User.findOne({email:courseUser})
+    const myCourses = theUser.userCourses;
+    const index = myCourses.indexOf(id)
+    if (index > -1) {
+      myCourses.splice(index, 1);
+    }
+    await theUser.save();
+  }
+  const deleted = await mongooseCourse.findByIdAndDelete(id)
+  res.status(201).json(deleted)
+})
 
 courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   req.body.owner = req.user.email
@@ -143,6 +159,31 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
+courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCourseData, permission, (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  const asID = req.params.assignmentID;
+  const myAssign = theCourse.assignments;
+  const index = myAssign.indexOf(asID)
+    if (index > -1) {
+      myAssign.splice(index, 1);
+    }
+    await theCourse.save();
+    return myAssign;
+
+})
+courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  const quID = req.params.quizID;
+  const myQuizez = theCourse.quizes;
+  const index = myQuizez.indexOf(quID)
+    if (index > -1) {
+      myQuizez.splice(index, 1);
+    }
+    await theCourse.save();
+    return myQuizez;
+})
 
 courseRouter.post('/course/:courseID/:quizID/submit-quiz', bearerAuth, getCourseData, async (req, res) => {
   const thisUser = req.user;
