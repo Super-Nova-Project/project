@@ -69,7 +69,7 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
   }
 });
 
-courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permission, (req, res) => {
+courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const theUsers = theCourse.members;
@@ -159,7 +159,7 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
-courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCourseData, permission, (req, res) => {
+courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const asID = req.params.assignmentID;
@@ -177,7 +177,7 @@ courseRouter.delete('/course/:courseID/:assignmentID/delete',bearerAuth, getCour
     return myAssign;
 
 })
-courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, (req, res) => {
+courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const quID = req.params.quizID;
@@ -193,7 +193,7 @@ courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData
     return myQuizez;
 })
 
-courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData, permission, (req, res) => {
+courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const email = req.body.email;
   const theCourse = await mongooseCourse.findById(id)
@@ -213,7 +213,7 @@ courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData
     return student;
 })
 
-courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, (req, res) => {
+courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, async (req, res) => {
   const id  = req.params.courseID;
   const email = req.user.email;
   const theCourse = await mongooseCourse.findById(id)
@@ -233,7 +233,7 @@ courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, 
     return theCourse;
 })
 
-courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, (req, res) => {
+courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const quID = req.params.quizID;

@@ -15,6 +15,6 @@ module.exports = async (req, res, next) => {
     req.token = validUser.token;
     next();
   } catch (e) {
-    res.status(403).send('Bearer : Invalid Login');;
+    res.status(403).send('Bearer : Invalid Login');
   }
 }
