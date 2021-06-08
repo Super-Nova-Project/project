@@ -16,9 +16,7 @@
     1. Malak Al-Momani
     1. Mus'ab Al-Omari
 
-Database Diagram:
 
-![database](./assets/database.png)
 
 **Routes**:
 
@@ -60,3 +58,7 @@ Database Diagram:
 * UML Diagram :
 
 <img src = "assets/projectUML.png">
+
+* Database Diagram:
+
+![database](./assets/database.png)
