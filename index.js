@@ -9,11 +9,11 @@ mongoose.connect(process.env.MONGODB_URI, {
     useUnifiedTopology: true,
     useFindAndModify: false,
     useCreateIndex: true,
-})
-.then(()=> {
+  })
+  .then(() => {
     console.log('conntected to mongoDB');
-    
-})
-.catch((err)=> console.log(err));
+
+  })
+  .catch((err) => console.log(err));
 
 server.start();
