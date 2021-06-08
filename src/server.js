@@ -20,6 +20,8 @@ require('./middleware/passport')
 // const courseData = require('./middleware/getCourseData');
 // const isApproved = require('./middleware/permission');
 const mongooseCourse = require('./model/cours-model');
+const ejs = require('ejs')
+
 app.use(cors());
 app.use(morgan('dev'));
 // Process JSON input and put the data on req.body
@@ -61,18 +63,18 @@ app.post('/signin', basicAuth, (req, res, next) => {
     res.cookie('user', `Bearer ${user.token}`)
     res.status(200).json(user);
 });
-app.get('/signin', (req, res) => {
-    res.sendFile(__dirname + '/login.html')
-})
-app.get('/users', bearerAuth, async (req, res, next) => {
-    const users = await User.find({});
-    const list = users.map(user => user.email);
-    res.status(200).json(list);
-});
+// app.get('/signin', (req, res) => {
+//     res.sendFile(__dirname + '/login.html')
+// })
+// app.get('/users', bearerAuth, async (req, res, next) => {
+//     const users = await User.find({});
+//     const list = users.map(user => user.email);
+//     res.status(200).json(list);
+// });
 
-app.get('/secret', bearerAuth, async (req, res, next) => {
-    res.status(200).send("Welcome to the secret area!")
-});
+// app.get('/secret', bearerAuth, async (req, res, next) => {
+//     res.status(200).send("Welcome to the secret area!")
+// });
 
 app.get('/auth/google',
     passport.authenticate('google', {
