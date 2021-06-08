@@ -18,7 +18,7 @@
 
 Database Diagram:
 
-[database](database.png)
+![database](database.png)
 
 **Routes**:
 
