@@ -16,8 +16,6 @@
     1. Malak Al-Momani
     1. Mus'ab Al-Omari
 
-
-
 **Routes**:
 
 > Authentication Routes:
@@ -41,16 +39,27 @@
 | POST      | /join-course       | allow user to join course using key   |
 | POST      | /course/:courseID/create-assignment       | only the owner can create assignment inside the course   |
 | POST      | /course/:courseID/create-quiz       | only the owner can create quiz inside the course   |
-| get      | /course/:courseID/grades       | to show the grades   |
+| GET      | /course/:courseID/grades       | to show the grades   |
 | POST      | /course/:courseID/grades       | only the owner can edit the grades   |
 | POST      | /course/:courseID/:assignmentID/submit-assignment       | allow the members to sumbit the assignments   |
 | POST      | /course/:courseID/:quizID/submit-quiz      | allow the members to sumbit the quizzes   |
+| DELETE      | /course/:courseID/delete-as/:assignmentID    | the owner can delete an assignment   |
+| DELETE      | /course/:courseID/:quizID/delete-qu      | the owner can delete a quiz   |
+| DELETE      | /course/:courseID/delete-student      | the owner can delete a student   |
+| DELETE      | /course/:courseID/leave-course      | the member can leave the course   |
 
 > to-do Routes:
 
 | Method      | Endpoint | Description     |
 | :---        |    :----:   |  :----:       |
 | GET      | /task       | show incoming tasks for the member   |
+
+> Video call routes
+
+| Method      | Endpoint | Description     |
+| :---        |    :----:   |  :----:       |
+| GET      | /myRoom/       | redirect to specific room with random id   |
+| GET      | /myRoom/:room       | go to specific room with specific id   |
 
 * Trelllo Board :
 [Click Here](https://trello.com/b/gDHcanLR)
