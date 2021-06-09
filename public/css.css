@@ -43,3 +43,8 @@ video {
 #message-input {
     flex-grow: 1;
 }
+
+.shareScreen {
+    height: 500pt;
+    width: 500x;
+}

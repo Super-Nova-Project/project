@@ -69,13 +69,14 @@ app.get('/myRoom/:room', (req, res) => {
 
 
 // create sio connection 
+let ids = [];
 sio.on('connection', socket => {
 
   let newName = '';
   // let MyUserId = '';
   socket.on('join-room', (roomId, userId) => {
-
-    // create a room using my room id 
+    ids.push(userId)
+      // create a room using my room id 
     socket.join(roomId);
 
     // send the user id to whom in the room 
@@ -85,7 +86,9 @@ sio.on('connection', socket => {
     socket.emit('userId-Joined', userId);
 
     socket.on('share', () => {
-      socket.broadcast.to(roomId).emit('user-share', userId);
+      console.log(ids, userId);
+      // socket.broadcast.to(roomId).emit('user-share', ids[1]);
+      socket.emit('user-share', ids[1]);
     });
 
     socket.on('sendUserToServer', name => {

@@ -8,7 +8,7 @@ const myVideo = document.createElement('video');
 const videoGrid = document.getElementById('video-grid');
 myVideo.muted = true;
 const shareScreenB = document.getElementById('shareScrean');
-
+const shareVideo = document.getElementById('share-grid')
 
 
 
@@ -19,7 +19,8 @@ const socket = io('/');
 // eslint-disable-next-line no-undef
 const peer = new Peer();
 // eslint-disable-next-line no-undef
-
+// eslint-disable-next-line no-undef
+const myPeer = new Peer();
 
 
 peer.on('open', (id) => {
@@ -49,6 +50,7 @@ async function callStream(stream) {
   let x = await stream;
 
   peer.on('call', call => {
+    console.log('iam in the');
     call.answer(x);
     const video = document.createElement('video');
     call.on('stream', userVideoStream => {
@@ -74,6 +76,10 @@ callStream(myNavigator);
 
 const connectToNewUser = async(userId, stream) => {
   let x = await stream;
+
+
+
+
   const call = peer.call(userId, x);
 
   const video = document.createElement('video');
@@ -154,44 +160,67 @@ function appendMessage(message) {
 }
 
 
-//  share screen function 
-let share;
-async function shareScreen() {
-  return await navigator.mediaDevices.getDisplayMedia({ video: true });
+
+
+async function startCapture() {
+  let captureStream = null;
+  try {
+    captureStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+  } catch (err) {
+    console.error("Error: " + err);
+  }
+  return captureStream;
 }
 
-shareScreenB.addEventListener('click', function name(event) {
+
+
+
+//  share screen function 
+shareScreenB.addEventListener('click', async function name(event) {
   event.preventDefault();
-  const video = document.createElement('video');
-  video.setAttribute('class', 'share');
-  video.muted;
-  share = shareScreen();
-  addVideoStream(video, share);
+  // const stream = startCapture()
   socket.emit('share');
+
+  // the answer 
+  // myPeer.on('call', call => {
+  //   call.answer(stream);
+  //   console.log('whhhhhhhhhhhhhhhhhhhhhhhhhhh');
+  //   const video = document.createElement('video');
+  //   video.setAttribute('class', 'shareScreen')
+  //   console.log(video);
+  //   call.on('stream', userVideoStream => {
+  //     addShareStream(video, userVideoStream);
+  //   });
+  //   call.on('close', () => {
+  //     console.log('CLOSED');
+  //     video.remove();
+  //   });
+  // });
+
+
 });
+
 
 
 socket.on('user-share', (userId) => {
-  console.log('user-share', userId);
-  connectNewShare(userId, share);
+  console.log('userId', userId);
+  navigator.mediaDevices.getDisplayMedia({ video: true }).then(stream => {
+    connectNewShare(userId, stream);
+  })
 });
 
 
+
 async function connectNewShare(userId, stream) {
-  const call = peer.connect(userId, stream);
-  const video = document.createElement('video');
-  video.setAttribute('class', 'share');
+
+  const call = myPeer.call(userId, stream)
   console.log('call', call);
-
-
-  console.log('?');
-  call.on('stream', function(userVideoStream) {
-    console.log('gg');
-    addVideoStream(video, userVideoStream);
-  });
-
-  call.on('close', () => {
-    console.log('CLOSED');
-    video.remove();
-  });
 }
+
+const addShareStream = async(video, stream) => {
+  video.srcObject = await stream;
+  video.addEventListener('loadedmetadata', () => {
+    video.play();
+  });
+  shareVideo.append(video);
+};
