@@ -1,8 +1,8 @@
 # Super Nova Group
 
-<img src = "assets/supernova-logo-black-and-white.png">
+<img src = "assets/techuni.png" style="width:300px; margin-left:300px">
 
------------------------------
+
 
 ## My Online Uni
 
@@ -44,7 +44,7 @@
 | POST      | /course/:courseID/:assignmentID/submit-assignment       | allow the members to sumbit the assignments   |
 | POST      | /course/:courseID/:quizID/submit-quiz      | allow the members to sumbit the quizzes   |
 | DELETE      | /course/:courseID/delete-as/:assignmentID    | the owner can delete an assignment   |
-| DELETE      | /course/:courseID/:quizID/delete-qu      | the owner can delete a quiz   |
+| DELETE      | /course/:courseID/delete-qu/:quizID      | the owner can delete a quiz   |
 | DELETE      | /course/:courseID/delete-student      | the owner can delete a student   |
 | DELETE      | /course/:courseID/leave-course      | the member can leave the course   |
 

@@ -178,7 +178,7 @@ courseRouter.delete('/course/:courseID/delete-as/:assignmentID',bearerAuth, getC
     res.send(myAssign);
 
 })
-courseRouter.delete('/course/:courseID/:quizID/delete-qu',bearerAuth, getCourseData, permission, async (req, res) => {
+courseRouter.delete('/course/:courseID/delete-qu/:quizID',bearerAuth, getCourseData, permission, async (req, res) => {
   const id  = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const quID = req.params.quizID;
