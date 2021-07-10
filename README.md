@@ -48,7 +48,7 @@
 | DELETE      | /course/:courseID/delete-student      | the owner can delete a student   |
 | DELETE      | /course/:courseID/leave-course      | the member can leave the course   |
 
-> to-do Routes:
+> Task's list Route:
 
 | Method      | Endpoint | Description     |
 | :---        |    :----:   |  :----:       |

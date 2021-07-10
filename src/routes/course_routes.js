@@ -95,7 +95,13 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   let id = course._id
   let a = await User.findOne({ email })
   console.log('-------------------------', id);
-  let b = a.userCourses.push(id.toString());
+  let courseObject = {
+    name: course.name,
+    description: course.description,
+    owner: course.owner,
+    id: course._id
+  }
+  let b = a.userCourses.push(courseObject);
   await a.save()
   res.status(201).json(newCourse);
 
@@ -127,9 +133,14 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
     }
     myCourse.members.push(email);
     myCourse.grades.push(obj);
-
+    let courseObject = {
+      name: myCourse.name,
+      description: myCourse.description,
+      owner: myCourse.owner,
+      id: myCourse._id
+    }
     let a = await User.findOne({ email })
-    let b = a.userCourses.push(id);
+    let b = a.userCourses.push(courseObject);
     await a.save()
     // await User.save();
     await myCourse.save()
