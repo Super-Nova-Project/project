@@ -19,7 +19,7 @@ const users = new mongoose.Schema({
 users.virtual('token').get(function () {
   let tokenObject = {
     email: this.email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60)
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24)
   }
   let a = jwt.sign(tokenObject, process.env.SECRET);
   // console.log('in vertual token ----------', a);
