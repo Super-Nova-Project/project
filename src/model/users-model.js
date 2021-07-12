@@ -19,15 +19,15 @@ const users = new mongoose.Schema({
 users.virtual('token').get(function () {
   let tokenObject = {
     email: this.email,
-    exp: Math.floor(Date.now() / 1000) + (60 * 60)
+    exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24)
   }
   let a = jwt.sign(tokenObject, process.env.SECRET);
-  console.log('in vertual token ----------', a);
+  // console.log('in vertual token ----------', a);
   return a;
 });
 
 users.pre('save', async function () {
-  console.log('pre save this.isModified----------', this.isModified('password'));
+  // console.log('pre save this.isModified----------', this.isModified('password'));
   if (this.isModified('password')) {
     this.password = await bcrypt.hash(this.password, 10);
   }
@@ -36,7 +36,8 @@ users.pre('save', async function () {
 // BASIC AUTH
 users.statics.authenticateBasic = async function (email, password) {
   const user = await this.findOne({ email })
-  console.log( '--------authenticateBasic --------', user);
+
+  // console.log( '--------authenticateBasic --------', user);
   const valid = await bcrypt.compare(password, user.password)
   if (valid) { return user; }
   throw new Error('Invalid User');
@@ -47,8 +48,8 @@ users.statics.authenticateWithToken = async function (token) {
   try {
     const parsedToken = jwt.verify(token, process.env.SECRET);
     const user = await this.findOne({ email: parsedToken.email })
-    console.log( '--------authenticateWithToken parsedToken--------', parsedToken);
-    console.log( '--------authenticateWithToken user--------', user);
+    // console.log( '--------authenticateWithToken parsedToken--------', parsedToken);
+    // console.log( '--------authenticateWithToken user--------', user);
     if (user) { return user; }
     throw new Error("User Not Found");
   } catch (e) {

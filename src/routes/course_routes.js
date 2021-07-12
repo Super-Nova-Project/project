@@ -18,14 +18,13 @@ courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseDa
   const assignmet = new mongooseAssignment(req.body);
   thisCourse.assignments.push(assignmet);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
-
+  await myCourse.save()
   res.send(myCourse.assignments);
 });
 
 courseRouter.post('/course/:courseID/create-quiz', bearerAuth, getCourseData, permission, async (req, res) => {
   const thisCourse = req.course;
   const quiz = new mongooseQuiz(req.body);
-  console.log(quiz);
   thisCourse.quizes.push(quiz);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
 
@@ -37,7 +36,7 @@ courseRouter.post('/course/:courseID/create-quiz', bearerAuth, getCourseData, pe
 courseRouter.get('/course/:courseID/grades', bearerAuth, getCourseData, permission, (req, res) => {
 
   // let courseID = req.params.courseID;
-  console.log('------------hi------------', req.course);
+  // console.log('------------hi------------', req.course);
   res.status(200).json(req.course.grades)
 
 
@@ -51,10 +50,10 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
 
   try {
     const id = req.params.courseID;
-    const email = req.user.email;
+    const email = req.body.email;
     const myCourse = await mongooseCourse.findById(id);
-    if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
     if (myCourse) {
+      if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
 
       myCourse.grades.forEach(element => {
         if (element.email == email) element = req.body;
@@ -69,6 +68,23 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
   }
 });
 
+courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permission, async (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  const theUsers = theCourse.members;
+  for (let courseUser of theUsers) {
+    const theUser = await User.findOne({email:courseUser})
+    const myCourses = theUser.userCourses;
+    let index = 0
+    for( let ele of myCourses){
+      if(ele.id == id) myCourses.splice(index, 1);
+      index ++
+    }
+    await theUser.save();
+  }
+  const deleted = await mongooseCourse.findByIdAndDelete(id)
+  res.status(201).json(deleted)
+})
 
 courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   req.body.owner = req.user.email
@@ -79,8 +95,15 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   const newCourse = await course.save();
   let id = course._id
   let a = await User.findOne({ email })
-  console.log('-------------------------', id);
-  let b = a.userCourses.push(id.toString());
+  // console.log('-------------------------', id);
+  let courseObject = {
+    name: course.name,
+    description: course.description,
+    owner: course.owner,
+    id: course._id
+  }
+  console.log('-------------------------', courseObject);
+  let b = a.userCourses.push(courseObject);
   await a.save()
   res.status(201).json(newCourse);
 
@@ -97,8 +120,8 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
   let id = req.body.id;
   const email = req.user.email;
   const myCourse = await mongooseCourse.findById(id);
-  if (myCourse.members.includes(email)) next('you are already enrolled')
   if (myCourse) {
+    if (myCourse.members.includes(email)) next('you are already enrolled')
     let obj = {
       email: email,
       midExam: 0,
@@ -112,9 +135,15 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
     }
     myCourse.members.push(email);
     myCourse.grades.push(obj);
-
+    let courseObject = {
+      name: myCourse.name,
+      description: myCourse.description,
+      owner: myCourse.owner,
+      id: myCourse._id
+    }
+    console.log('-------------------------', courseObject);
     let a = await User.findOne({ email })
-    let b = a.userCourses.push(id);
+    let b = a.userCourses.push(courseObject);
     await a.save()
     // await User.save();
     await myCourse.save()
@@ -143,6 +172,96 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
+courseRouter.delete('/course/:courseID/delete-as/:assignmentID',bearerAuth, getCourseData, permission, async (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  console.log('--------theCourse--------',theCourse);
+  const asID = req.params.assignmentID;
+  const myAssign = theCourse.assignments;
+  console.log('--------myAssign--------',myAssign);
+  // const index = myAssign.indexOf(asID)
+    for (let index = 0; index < myAssign.length; index++) {
+      const element = myAssign[index];
+      if( element._id == asID){
+        myAssign.splice(index, 1);
+      }
+    }
+    console.log('--------myAssign after--------',myAssign);
+    
+    await theCourse.save();
+    res.send(myAssign);
+
+})
+courseRouter.delete('/course/:courseID/delete-qu/:quizID',bearerAuth, getCourseData, permission, async (req, res) => {
+  const id  = req.params.courseID;
+  const theCourse = await mongooseCourse.findById(id)
+  const quID = req.params.quizID;
+  const myQuizez = theCourse.quizes;
+  // const index = myQuizez.indexOf(quID)
+  for (let index = 0; index < myQuizez.length; index++) {
+    const element = myQuizez[index];
+    if( element._id == quID){
+      myQuizez.splice(index, 1);
+    }
+  }
+    await theCourse.save();
+    res.send(myQuizez);
+})
+
+courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData, permission, async (req, res) => {
+  const id  = req.params.courseID;
+  const email = req.body.email;
+  const theCourse = await mongooseCourse.findById(id)
+  const myMembers = theCourse.members;
+  const index = myMembers.indexOf(email)
+    if (index > -1) {
+      myMembers.splice(index, 1);
+    }
+    await theCourse.save();
+    const student = await User.findOne({email})
+    const studentCourses = student.userCourses;
+    let indexT = 0
+    for( let ele of studentCourses){
+      if(ele.id == id) studentCourses.splice(indexT, 1);
+      indexT ++
+    }
+    await student.save()
+    return student;
+})
+
+courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, async (req, res) => {
+  const id  = req.params.courseID;
+  const email = req.user.email;
+  const theCourse = await mongooseCourse.findById(id)
+  const myMembers = theCourse.members;
+  const index = myMembers.indexOf(email)
+    if (index > -1) {
+      myMembers.splice(index, 1);
+    }
+    await theCourse.save();
+    const student = await User.findOne({email})
+    const studentCourses = student.userCourses;
+    let indexT = 0
+    for( let ele of studentCourses){
+      if(ele.id == id) studentCourses.splice(indexT, 1);
+      indexT ++
+    }
+    await student.save()
+    return theCourse;
+})
+
+// courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
+//   const id  = req.params.courseID;
+//   const theCourse = await mongooseCourse.findById(id)
+//   const quID = req.params.quizID;
+//   const myQuizez = theCourse.quizes;
+//   const index = myQuizez.indexOf(quID)
+//     if (index > -1) {
+//       myQuizez.splice(index, 1);
+//     }
+//     await theCourse.save();
+//     return myQuizez;
+// })
 
 courseRouter.post('/course/:courseID/:quizID/submit-quiz', bearerAuth, getCourseData, async (req, res) => {
   const thisUser = req.user;
