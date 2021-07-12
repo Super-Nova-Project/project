@@ -7,17 +7,15 @@ const base64 = require('base-64')
 const jwt = require('jsonwebtoken')
 const cors = require('cors');
 const morgan = require('morgan');
-
-
 const uuid = require('uuid').v4;
 const http = require('http').createServer(app);
-const sio = require('socket.io')(http);
 
-
-
-app.set('view engine', 'ejs');
-
-
+const io = socket(http, {
+  cors: {
+      origin: "*",
+      methods: ['GET', 'POST']
+  }
+});
 
 
 
@@ -69,44 +67,62 @@ app.get('/myRoom/:room', (req, res) => {
 
 
 // create sio connection 
-let ids = [];
-sio.on('connection', socket => {
 
-  let newName = '';
-  // let MyUserId = '';
-  socket.on('join-room', (roomId, userId) => {
-    ids.push(userId)
-      // create a room using my room id 
-    socket.join(roomId);
-
-    // send the user id to whom in the room 
-    socket.broadcast.to(roomId).emit('user-connected', userId);
-
-
-    socket.emit('userId-Joined', userId);
-
-    socket.on('share', () => {
-      console.log(ids, userId);
-      // socket.broadcast.to(roomId).emit('user-share', ids[1]);
-      socket.emit('user-share', ids[1]);
-    });
-
-    socket.on('sendUserToServer', name => {
-      newName = name;
-      socket.broadcast.emit('sendBackUserToFrontEnd', name);
-    });
+const users = {};
+const socketToRoom = {};
+io.on('connection', socket => {
+    socket.on("join room", roomID => {
+        socket.join(roomID)
+        if (users[roomID]) {
+            const length = users[roomID].length;
+            if (length === 4) {
+                socket.emit("room full");
+                return;
+            }
+            users[roomID].push(socket.id);
+        } else {
+            users[roomID] = [socket.id];
+        }
+        socketToRoom[socket.id] = roomID;
+        const usersInThisRoom = users[roomID].filter(id => id !== socket.id);
 
 
-    socket.on('sendMassageToServer', message => {
-      socket.broadcast.emit('sendMassageBackToFrontEnd', message, newName);
-    });
+        socket.emit("all users", usersInThisRoom);
 
+        socket.on('startShare', () => {
+            socket.emit("all myUsers", users);
 
-    socket.on('disconnect', () => {
-      console.log(newName, userId);
-      socket.broadcast.to(roomId).emit('user-disconnected', newName, userId);
-    });
-  });
+        })
+
+        socket.on("sending signal", payload => {
+            io.to(payload.userToSignal).emit('user joined', { signal: payload.signal, callerID: payload.callerID });
+        });
+
+        socket.on("returning signal", payload => {
+            io.to(payload.callerID).emit('receiving returned signal', { signal: payload.signal, id: socket.id });
+        });
+
+        socket.on('disconnect', () => {
+            console.log('socket.id', socket.id);
+            const roomID = socketToRoom[socket.id];
+            let room = users[roomID];
+            if (room) {
+                room = room.filter(id => id !== socket.id);
+                users[roomID] = room;
+            }
+            socket.broadcast.emit('userLeft', socket.id)
+
+        });
+    })
+    socket.on('chatRoom', roomID => {
+        socket.join(roomID);
+        socket.emit('userId-Joined');
+        socket.on('message', ({ name, message }) => {
+            console.log(message);
+            io.to(roomID).emit('message', { name, message })
+        })
+    })
+
 });
 
 
