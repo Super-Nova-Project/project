@@ -75,9 +75,10 @@ courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permi
   for (let courseUser of theUsers) {
     const theUser = await User.findOne({email:courseUser})
     const myCourses = theUser.userCourses;
-    const index = myCourses.indexOf(id)
-    if (index > -1) {
-      myCourses.splice(index, 1);
+    let index = 0
+    for( let ele of myCourses){
+      if(ele.id == id) myCourses.splice(index, 1);
+      index ++
     }
     await theUser.save();
   }
@@ -219,9 +220,10 @@ courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData
     await theCourse.save();
     const student = await User.findOne({email})
     const studentCourses = student.userCourses;
-    const secIndex = studentCourses.indexOf(id);
-    if (secIndex > -1) {
-      studentCourses.splice(secIndex, 1);
+    let indexT = 0
+    for( let ele of studentCourses){
+      if(ele.id == id) studentCourses.splice(indexT, 1);
+      indexT ++
     }
     await student.save()
     return student;
@@ -239,9 +241,10 @@ courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, 
     await theCourse.save();
     const student = await User.findOne({email})
     const studentCourses = student.userCourses;
-    const secIndex = studentCourses.indexOf(id);
-    if (secIndex > -1) {
-      studentCourses.splice(secIndex, 1);
+    let indexT = 0
+    for( let ele of studentCourses){
+      if(ele.id == id) studentCourses.splice(indexT, 1);
+      indexT ++
     }
     await student.save()
     return theCourse;
