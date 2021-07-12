@@ -53,18 +53,6 @@ app.use(courseRouter);
 app.use(taskRoute)
 
 
-// create a room id 
-
-app.get('/myRoom/', (req, res) => {
-  res.redirect(`/myRoom/${uuid()}`);
-});
-
-// send room id to the front end
-
-app.get('/myRoom/:room', (req, res) => {
-  res.render('room', { roomId: req.params.room });
-});
-
 
 // create sio connection 
 
