@@ -50,10 +50,10 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
 
   try {
     const id = req.params.courseID;
-    const email = req.user.email;
+    const email = req.body.email;
     const myCourse = await mongooseCourse.findById(id);
-    if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
     if (myCourse) {
+      if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
 
       myCourse.grades.forEach(element => {
         if (element.email == email) element = req.body;
@@ -94,13 +94,14 @@ courseRouter.post('/create-course', bearerAuth, async (req, res) => {
   const newCourse = await course.save();
   let id = course._id
   let a = await User.findOne({ email })
-  console.log('-------------------------', id);
+  // console.log('-------------------------', id);
   let courseObject = {
     name: course.name,
     description: course.description,
     owner: course.owner,
     id: course._id
   }
+  console.log('-------------------------', courseObject);
   let b = a.userCourses.push(courseObject);
   await a.save()
   res.status(201).json(newCourse);
@@ -118,8 +119,8 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
   let id = req.body.id;
   const email = req.user.email;
   const myCourse = await mongooseCourse.findById(id);
-  if (myCourse.members.includes(email)) next('you are already enrolled')
   if (myCourse) {
+    if (myCourse.members.includes(email)) next('you are already enrolled')
     let obj = {
       email: email,
       midExam: 0,
@@ -139,6 +140,7 @@ courseRouter.post('/join-course', bearerAuth, async (req, res, next) => {
       owner: myCourse.owner,
       id: myCourse._id
     }
+    console.log('-------------------------', courseObject);
     let a = await User.findOne({ email })
     let b = a.userCourses.push(courseObject);
     await a.save()
