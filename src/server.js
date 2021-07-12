@@ -13,7 +13,7 @@ const socket = require("socket.io");
 const io = socket(http, {
   cors: {
     origin: "*",
-    methods: ['GET', 'POST']
+    methods: ['GET', 'POST','DELETE','PUT']
   }
 });
 let rooms = []
