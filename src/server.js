@@ -18,8 +18,6 @@ const io = socket(http, {
     credentials: true,
   }
 });
-
-
 let rooms = []
 io.on('connection', (socket) => {
   console.log('connect')
