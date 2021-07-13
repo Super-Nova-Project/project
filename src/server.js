@@ -10,7 +10,10 @@ const morgan = require('morgan');
 const uuid = require('uuid').v4;
 const http = require('http').createServer(app);
 const socket = require("socket.io");
-app.use(cors())
+const fileUpload = require('express-fileupload');
+app.use(cors());
+
+app.use(fileUpload());
 const io = socket(http, {
   cors: {
     origin: "*",
