@@ -10,10 +10,12 @@ const morgan = require('morgan');
 const uuid = require('uuid').v4;
 const http = require('http').createServer(app);
 const socket = require("socket.io");
+app.use(cors())
 const io = socket(http, {
   cors: {
     origin: "*",
-    methods: ['GET', 'POST', 'DELETE', 'PUT']
+    methods: ['GET', 'POST','DELETE','PUT'],
+    credentials: true,
   }
 });
 
