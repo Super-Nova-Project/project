@@ -18,7 +18,8 @@ courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseDa
   const assignmet = new mongooseAssignment(req.body);
   console.log(assignmet);
   console.log(req.body);
-  console.log(req.files)
+  console.log(req.files, '-------------');
+  console.log(req.files[0]);
   thisCourse.assignments.push(assignmet);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   await myCourse.save()
