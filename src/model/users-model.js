@@ -19,6 +19,8 @@ const users = new mongoose.Schema({
 users.virtual('token').get(function () {
   let tokenObject = {
     email: this.email,
+    firstName: this.firstName,
+    lastName: this.lastName,
     exp: Math.floor(Date.now() / 1000) + (60 * 60 * 24)
   }
   let a = jwt.sign(tokenObject, process.env.SECRET);
