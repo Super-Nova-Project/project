@@ -15,7 +15,7 @@ const io = socket(http, {
   cors: {
     origin: "*",
     methods: ['GET', 'POST','DELETE','PUT'],
-    credentials: true
+    credentials: true,
   }
 });
 let rooms = []
@@ -26,8 +26,16 @@ io.on('connection', (socket) => {
     rooms.push(room)
   })
 
-  socket.on('give me the rooms',(dd)=>{
-    
+  socket.on('give me the rooms', (dd) => {
+
+    io.emit('rooms', rooms)
+  })
+
+  socket.on('deleteTheRooms', (id) => {
+    console.log(id);
+    console.log(rooms);
+    rooms= rooms.filter(obj=>obj.course!==id)
+    console.log(rooms);
     io.emit('rooms', rooms)
   })
 
