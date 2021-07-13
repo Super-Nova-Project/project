@@ -8,10 +8,12 @@ const permission = require('../middleware/permission.js');
 const mongooseCourse = require('../model/cours-model.js');
 const mongooseAssignment = require('../model/assignment-model.js')
 const mongooseQuiz = require('../model/quiz-model.js');
+const fileUpload = require('express-fileupload');
 
 const User = require('../model/users-model');
 const { json } = require('express');
 
+courseRouter.use(fileUpload());
 
 courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseData, permission, async (req, res) => {
   const thisCourse = req.course;
@@ -60,7 +62,7 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
       if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
       let newGrades = myCourse.grades.map(element => {
         if (element.email == email) {
-          element = {...element, ...req.body};
+          element = { ...element, ...req.body };
           console.log('in post grade', element);
         }
         return element;
@@ -78,16 +80,16 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
 });
 
 courseRouter.delete('/course/:courseID/delete', bearerAuth, getCourseData, permission, async (req, res) => {
-  const id  = req.params.courseID;
+  const id = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const theUsers = theCourse.members;
   for (let courseUser of theUsers) {
-    const theUser = await User.findOne({email:courseUser})
+    const theUser = await User.findOne({ email: courseUser })
     const myCourses = theUser.userCourses;
     let index = 0
-    for( let ele of myCourses){
-      if(ele.id == id) myCourses.splice(index, 1);
-      index ++
+    for (let ele of myCourses) {
+      if (ele.id == id) myCourses.splice(index, 1);
+      index++
     }
     await theUser.save();
   }
@@ -181,82 +183,82 @@ courseRouter.post('/course/:courseID/:assignmentID/submit-assignment', bearerAut
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   res.send(myCourse.assignments);
 });
-courseRouter.delete('/course/:courseID/delete-as/:assignmentID',bearerAuth, getCourseData, permission, async (req, res) => {
-  const id  = req.params.courseID;
+courseRouter.delete('/course/:courseID/delete-as/:assignmentID', bearerAuth, getCourseData, permission, async (req, res) => {
+  const id = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
-  console.log('--------theCourse--------',theCourse);
+  console.log('--------theCourse--------', theCourse);
   const asID = req.params.assignmentID;
   const myAssign = theCourse.assignments;
-  console.log('--------myAssign--------',myAssign);
+  console.log('--------myAssign--------', myAssign);
   // const index = myAssign.indexOf(asID)
-    for (let index = 0; index < myAssign.length; index++) {
-      const element = myAssign[index];
-      if( element._id == asID){
-        myAssign.splice(index, 1);
-      }
+  for (let index = 0; index < myAssign.length; index++) {
+    const element = myAssign[index];
+    if (element._id == asID) {
+      myAssign.splice(index, 1);
     }
-    console.log('--------myAssign after--------',myAssign);
-    
-    await theCourse.save();
-    res.send(myAssign);
+  }
+  console.log('--------myAssign after--------', myAssign);
+
+  await theCourse.save();
+  res.send(myAssign);
 
 })
-courseRouter.delete('/course/:courseID/delete-qu/:quizID',bearerAuth, getCourseData, permission, async (req, res) => {
-  const id  = req.params.courseID;
+courseRouter.delete('/course/:courseID/delete-qu/:quizID', bearerAuth, getCourseData, permission, async (req, res) => {
+  const id = req.params.courseID;
   const theCourse = await mongooseCourse.findById(id)
   const quID = req.params.quizID;
   const myQuizez = theCourse.quizes;
   // const index = myQuizez.indexOf(quID)
   for (let index = 0; index < myQuizez.length; index++) {
     const element = myQuizez[index];
-    if( element._id == quID){
+    if (element._id == quID) {
       myQuizez.splice(index, 1);
     }
   }
-    await theCourse.save();
-    res.send(myQuizez);
+  await theCourse.save();
+  res.send(myQuizez);
 })
 
-courseRouter.delete('/course/:courseID/delete-student',bearerAuth, getCourseData, permission, async (req, res) => {
-  const id  = req.params.courseID;
+courseRouter.delete('/course/:courseID/delete-student', bearerAuth, getCourseData, permission, async (req, res) => {
+  const id = req.params.courseID;
   const email = req.body.email;
   const theCourse = await mongooseCourse.findById(id)
   const myMembers = theCourse.members;
   const index = myMembers.indexOf(email)
-    if (index > -1) {
-      myMembers.splice(index, 1);
-    }
-    await theCourse.save();
-    const student = await User.findOne({email})
-    const studentCourses = student.userCourses;
-    let indexT = 0
-    for( let ele of studentCourses){
-      if(ele.id == id) studentCourses.splice(indexT, 1);
-      indexT ++
-    }
-    await student.save()
-    return student;
+  if (index > -1) {
+    myMembers.splice(index, 1);
+  }
+  await theCourse.save();
+  const student = await User.findOne({ email })
+  const studentCourses = student.userCourses;
+  let indexT = 0
+  for (let ele of studentCourses) {
+    if (ele.id == id) studentCourses.splice(indexT, 1);
+    indexT++
+  }
+  await student.save()
+  return student;
 })
 
-courseRouter.delete('/course/:courseID/leave-course',bearerAuth, getCourseData, async (req, res) => {
-  const id  = req.params.courseID;
+courseRouter.delete('/course/:courseID/leave-course', bearerAuth, getCourseData, async (req, res) => {
+  const id = req.params.courseID;
   const email = req.user.email;
   const theCourse = await mongooseCourse.findById(id)
   const myMembers = theCourse.members;
   const index = myMembers.indexOf(email)
-    if (index > -1) {
-      myMembers.splice(index, 1);
-    }
-    await theCourse.save();
-    const student = await User.findOne({email})
-    const studentCourses = student.userCourses;
-    let indexT = 0
-    for( let ele of studentCourses){
-      if(ele.id == id) studentCourses.splice(indexT, 1);
-      indexT ++
-    }
-    await student.save()
-    return theCourse;
+  if (index > -1) {
+    myMembers.splice(index, 1);
+  }
+  await theCourse.save();
+  const student = await User.findOne({ email })
+  const studentCourses = student.userCourses;
+  let indexT = 0
+  for (let ele of studentCourses) {
+    if (ele.id == id) studentCourses.splice(indexT, 1);
+    indexT++
+  }
+  await student.save()
+  return theCourse;
 })
 
 // courseRouter.delete('/course/:courseID/:quizID/delete',bearerAuth, getCourseData, permission, async (req, res) => {
