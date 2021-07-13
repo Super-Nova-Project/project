@@ -54,11 +54,16 @@ courseRouter.post('/course/:courseID/grades', bearerAuth, getCourseData, permiss
     const myCourse = await mongooseCourse.findById(id);
     if (myCourse) {
       if (!myCourse.members.includes(email)) next('you are not enrolled in this course')
-
-      myCourse.grades.forEach(element => {
-        if (element.email == email) element = req.body;
+      let newGrades = myCourse.grades.map(element => {
+        if (element.email == email) {
+          element = {...element, ...req.body};
+          console.log('in post grade', element);
+        }
+        return element;
       });
-      await myCourse.save()
+      console.log('in post grade', newGrades);
+      myCourse.grades = newGrades;
+      await mongooseCourse.findByIdAndUpdate(myCourse._id, myCourse, { new: true });
       res.status(201).json(myCourse);
     } else {
       next('course not found')
