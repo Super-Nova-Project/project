@@ -16,6 +16,8 @@ const { json } = require('express');
 courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseData, permission, async (req, res) => {
   const thisCourse = req.course;
   const assignmet = new mongooseAssignment(req.body);
+  console.log(assignmet);
+  console.log(req.body);
   thisCourse.assignments.push(assignmet);
   const myCourse = await mongooseCourse.findByIdAndUpdate(thisCourse._id, thisCourse, { new: true });
   await myCourse.save()
