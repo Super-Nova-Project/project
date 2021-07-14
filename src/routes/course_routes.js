@@ -8,12 +8,7 @@ const permission = require('../middleware/permission.js');
 const mongooseCourse = require('../model/cours-model.js');
 const mongooseAssignment = require('../model/assignment-model.js')
 const mongooseQuiz = require('../model/quiz-model.js');
-const fileUpload = require('express-fileupload');
-
 const User = require('../model/users-model');
-const { json } = require('express');
-
-courseRouter.use(fileUpload());
 
 courseRouter.post('/course/:courseID/create-assignment', bearerAuth, getCourseData, permission, async (req, res) => {
   const thisCourse = req.course;
