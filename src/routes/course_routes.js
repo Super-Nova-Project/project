@@ -214,22 +214,30 @@ courseRouter.delete('/course/:courseID/delete-qu/:quizID', bearerAuth, getCourse
 courseRouter.delete('/course/:courseID/delete-student', bearerAuth, getCourseData, permission, async (req, res) => {
   const id = req.params.courseID;
   const email = req.body.email;
+  console.log('email', email);
   const theCourse = await mongooseCourse.findById(id)
   const myMembers = theCourse.members;
+  console.log('myMembers', myMembers);
   const index = myMembers.indexOf(email)
   if (index > -1) {
     myMembers.splice(index, 1);
   }
+  console.log('myMembers', myMembers);
   await theCourse.save();
   const student = await User.findOne({ email })
   const studentCourses = student.userCourses;
+  console.log('studentCourses', studentCourses);
   let indexT = 0
   for (let ele of studentCourses) {
-    if (ele.id == id) studentCourses.splice(indexT, 1);
+    if (ele.id == id) {
+      studentCourses.splice(indexT, 1);
+      break;
+    }
     indexT++
   }
+  console.log('studentCourses', studentCourses);
   await student.save()
-  return student;
+  res.json(student) ;
 })
 
 courseRouter.delete('/course/:courseID/leave-course', bearerAuth, getCourseData, async (req, res) => {
